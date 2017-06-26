@@ -8,6 +8,7 @@ import {
 } from 'react-fela';
 import { static as Immutable } from 'seamless-immutable';
 import { capitalize } from 'underscore.string';
+import mergeOptions from 'merge-options';
 
 const createComponent = (rule, type = 'div', passThroughProps = []) =>
   createFelaComponent(
@@ -19,13 +20,13 @@ const createComponent = (rule, type = 'div', passThroughProps = []) =>
   );
 
 const connectStyles = (...styles) => type =>
-  styles.reduce(
-    (accum, style) =>
-      createComponent(typeof style === 'object' ? () => style : style, accum),
-    createComponent(
-      typeof styles[0] === 'object' ? () => styles[0] : styles[0],
-      type
-    )
+  createComponent(
+    combineRules(
+      ...styles.map(
+        style => (typeof style === 'function' ? style : () => style)
+      )
+    ),
+    type
   );
 
 const mergeThemes = (baseTheme, ...themes) => ({
